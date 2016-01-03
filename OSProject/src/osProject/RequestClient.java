@@ -21,7 +21,7 @@ public class RequestClient{
 		//add switch
 		
 		//connects two server
-		//connect();
+		connect();
 		
 		//gets login info
 		getUser();

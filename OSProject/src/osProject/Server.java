@@ -27,12 +27,14 @@ public class Server {
     
   //loop that accepts client and starts a new thread
     while (true) {
+      System.out.println("Waiting For New Connection");
       //blocking method that waits for connection
       Socket clientSocket = socket.accept();
       //creates new thread with socket and new id
       ClientServiceThread cliThread = new ClientServiceThread(clientSocket, id++);
       //starts thread
       cliThread.start();
+      
     }//end while
     
   }//end main
@@ -56,8 +58,8 @@ public class Server {
 			//split the string
 			String[] split = next.split(" ");
 			
-			System.out.println(split[0]);
-			System.out.println(split[1]);
+			//System.out.println(split[0]);
+			//System.out.println(split[1]);
 			
 			String username = split[0];
 			String password = split[1];
@@ -65,16 +67,14 @@ public class Server {
 			//pass to new login map
 			loginMap.put(split[0], split[1]);
 			
-			
 		}//while
 		
 		
-	}
+	}//end parseLogin
   
+   
   
-  
-  
-}
+}//end Server
 
 
 
@@ -87,6 +87,8 @@ class ClientServiceThread extends Thread {
   boolean running = true;
   ObjectOutputStream out;
   ObjectInputStream in;
+  
+  int option=0;
 
   ClientServiceThread(Socket s, int i) {
     clientSocket = s;
@@ -107,6 +109,27 @@ class ClientServiceThread extends Thread {
 	}
   public void run() {
     System.out.println("Accepted Client : ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
+    
+    //input commands from client
+    
+    while (running) {
+		System.out.println("Running");
+		
+		switch (option) {
+		case 1:
+			
+			break;
+			
+        case 2:
+			
+			break;
+
+		default:
+			break;
+		}
+		
+	}
+    
     try 
     {
     	out = new ObjectOutputStream(clientSocket.getOutputStream());
