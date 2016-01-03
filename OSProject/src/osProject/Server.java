@@ -12,17 +12,23 @@ import java.net.Socket;
 
 public class Server {
   public static void main(String[] args) throws Exception {
+	//creates a new serverSocket on port 2004 
     ServerSocket m_ServerSocket = new ServerSocket(2004,10);
     int id = 0;
+    //loop that accepts client and starts a new thread
     while (true) {
+      //blocking method that waits for connection
       Socket clientSocket = m_ServerSocket.accept();
+      //creates new thread with socket and new id
       ClientServiceThread cliThread = new ClientServiceThread(clientSocket, id++);
+      //starts thread
       cliThread.start();
     }
   }
 }
 
 class ClientServiceThread extends Thread {
+//variables
   Socket clientSocket;
   String message;
   int clientID = -1;
@@ -35,6 +41,7 @@ class ClientServiceThread extends Thread {
     clientID = i;
   }
 
+  //method to send a message to client
   void sendMessage(String msg)
 	{
 		try{
@@ -47,8 +54,7 @@ class ClientServiceThread extends Thread {
 		}
 	}
   public void run() {
-    System.out.println("Accepted Client : ID - " + clientID + " : Address - "
-        + clientSocket.getInetAddress().getHostName());
+    System.out.println("Accepted Client : ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
     try 
     {
     	out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -59,8 +65,7 @@ class ClientServiceThread extends Thread {
 		
 		sendMessage("Connection successful");
 		do{
-			try
-			{
+			try{
 				
 				System.out.println("client>"+clientID+"  "+ message);
 				//if (message.equals("bye"))
@@ -73,11 +78,13 @@ class ClientServiceThread extends Thread {
 			
     	}while(!message.equals("bye"));
       
-		System.out.println("Ending Client : ID - " + clientID + " : Address - "
-		        + clientSocket.getInetAddress().getHostName());
+		System.out.println("Ending Client : ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
+		
     } catch (Exception e) {
       e.printStackTrace();
-    }
-  }
-}
+    }//end catch
+    
+  }//end run
+  
+}//end ClientServiceThread
 

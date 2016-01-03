@@ -1,0 +1,3 @@
+martin*password
+john*password
+michael*password
