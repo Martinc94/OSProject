@@ -19,8 +19,6 @@ public class RequestClient{
 	{
 		stdin = new Scanner(System.in);
 		
-		//add switch
-		
 		//connects to server
 		connect();
 		
@@ -35,6 +33,7 @@ public class RequestClient{
 		//3: Communicating with the server
 		//comm();
 		
+		//cannot enter if username and password not verified
 		if(verified){
 			//commandLoop
 			do{
@@ -49,21 +48,56 @@ public class RequestClient{
 					String Response = (String)in.readObject();
 					System.out.println(Response);
 				} catch (ClassNotFoundException | IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
+				//split command
+				String[] split = command.split("\\*");
+	  	  		
+	  	  	    System.out.println(split[0]);
+	  			System.out.println(split[1]);
+	  			
+	  			String cmd = split[0];
+	  			String cmd2 = split[1];				
+				
 				//switch
-				
-				
-				
-				/*try{
-					//sendMessage("server got the following: "+message);
-					message = (String)in.readObject();
+				switch (cmd) {
+					
+				case "get":
+	  				//copy file to the server
+					getMethod();
+	  				break;
+	  				
+	  	        case "put":
+	  				//move a file to the server
+	  	        	putMethod();
+	  				break;
+	  				
+	  	        case "list":
+					//list all files in directory
+	  	        	
+					break;
+					
+	  	        case "move":
+					//move file to different directory
+	  	        	
+					break;
+					
+	  	        case "new":
+	  	        	//make new directory
+	  	        	
+					
+					break;
+					
+	  	       case "bye":
+		        	//end program	        	
+		        	verified=false;		
+					break;
+
+				default:
+					
+					break;
 				}
-				catch(ClassNotFoundException classnot){
-					System.err.println("Data received in unknown format");
-				}*/
 				
 	    	}while(!message.equals("bye"));
 		}
@@ -120,8 +154,6 @@ public class RequestClient{
 		try {
 			//String Command = (String)in.readObject();
 			//System.out.println(Command);
-			
-			System.out.println("out.write");
 			//out.writeObject(userpass);
 			out.flush();
 			
@@ -182,9 +214,6 @@ public class RequestClient{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		//sendMessage(command);
 
 	}
 	
@@ -225,8 +254,42 @@ public class RequestClient{
 			System.out.println("GoodBye");
 	}
 	
+	void getMethod(){
+		//create new file 
+		
+		//write to file
+		
+		//until recieve EOF 
+		
+	}
 	
+	void putMethod(){
+		//get file location
+		
+		//read from new file 
+		
+		//send to server
+		
+		//recieve responce
+	}
 	
+	void listMethod(){
+		
+		//recieve responce from server 
+	}
+	
+	void moveMethod(){
+		
+		//send filenameAndNewDirectory
+		
+		//recieve responce from server 
+	}	
+	
+	void newMethod(){
+		//send new directory to server
+		
+		//recieve responce from server 
+	}
 	
 //MAIN ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
