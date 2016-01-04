@@ -52,9 +52,8 @@ public class RequestClient{
 	{
 		try {
 		//1. creating a socket to connect to the server
-		System.out.println("Please Enter your IP Address");
-		System.out.println("192.168.1.6 desktop");
-		System.out.println("192.168.1.  laptop");
+		//System.out.println("Please Enter your IP Address");
+		System.out.println("Please Enter IP Address of Server 192.168.1.2");
 		ipaddress = stdin.next();
 		requestSocket = new Socket(ipaddress, 2004);
 		
