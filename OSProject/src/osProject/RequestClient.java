@@ -11,6 +11,7 @@ public class RequestClient{
  	String message="";
  	String ipaddress;
  	Scanner stdin;
+ 	boolean verified;
  	
  	RequestClient(){}
  	
@@ -20,18 +21,52 @@ public class RequestClient{
 		
 		//add switch
 		
-		//connects two server
+		//connects to server
 		connect();
-		
-		//gets login info
-		getUser();
 		
 		//get Input and Output streams
 		inOutStreams();
 		
-		//3: Communicating with the server
-		comm();
+		//gets login info
+		//getUser();
 		
+		login();
+		
+		//3: Communicating with the server
+		//comm();
+		
+		if(verified){
+			//commandLoop
+			do{
+				
+			String command;
+				
+				System.out.println("Please Enter your Command eg get*user (bye to exit): ");
+				command = stdin.next();
+				sendCommand(command);
+				
+				try {
+					String Response = (String)in.readObject();
+					System.out.println(Response);
+				} catch (ClassNotFoundException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				//switch
+				
+				
+				
+				/*try{
+					//sendMessage("server got the following: "+message);
+					message = (String)in.readObject();
+				}
+				catch(ClassNotFoundException classnot){
+					System.err.println("Data received in unknown format");
+				}*/
+				
+	    	}while(!message.equals("bye"));
+		}
 		//ends connection
 		closeConnection();
 	}	
@@ -41,7 +76,7 @@ public class RequestClient{
 		try{
 			out.writeObject(msg);
 			out.flush();
-			System.out.println("client>" + msg);
+			//System.out.println("client>" + msg);
 			}
 			catch(IOException ioException){
 				ioException.printStackTrace();
@@ -53,8 +88,9 @@ public class RequestClient{
 		try {
 		//1. creating a socket to connect to the server
 		//System.out.println("Please Enter your IP Address");
-		System.out.println("Please Enter IP Address of Server 192.168.1.2");
-		ipaddress = stdin.next();
+		System.out.println("Please Enter IP Address of Server 192.168.1.6");
+		//ipaddress = stdin.next();
+		ipaddress="192.168.1.6";
 		requestSocket = new Socket(ipaddress, 2004);
 		
 		} catch (UnknownHostException e) {
@@ -81,11 +117,21 @@ public class RequestClient{
 		//join into one one string seperated by *
 		userpass=user+"*"+pass;
 		
+		try {
+			//String Command = (String)in.readObject();
+			//System.out.println(Command);
+			
+			System.out.println("out.write");
+			//out.writeObject(userpass);
+			out.flush();
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		//System.out.println(userpass);
-	}
-	
-	void login(){
-		//send login to server and get response
 	}
 	
 	void inOutStreams(){
@@ -94,7 +140,7 @@ public class RequestClient{
 			out = new ObjectOutputStream(requestSocket.getOutputStream());
 			out.flush();
 			in = new ObjectInputStream(requestSocket.getInputStream());
-			System.out.println("Hello");
+			System.out.println("Welcome to the server");
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -102,6 +148,44 @@ public class RequestClient{
 		
 		
 		
+	}
+	
+	void login(){
+		try {
+			String login = (String)in.readObject();
+			System.out.println("Please Enter Username and password Eg martin*password");
+			login = stdin.next();
+			sendMessage(login);
+			
+			verified=in.readBoolean();
+			if (verified==false){
+				System.out.println("Wrong Login or Password");
+			}
+			
+			if (verified){
+				System.out.println("Correct Login and Password");
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	void sendCommand(String command){
+		//command = (String)in.readObject();
+		 try {
+			out.writeObject(command);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		//sendMessage(command);
+
 	}
 	
 	void comm(){
@@ -138,6 +222,7 @@ public class RequestClient{
 			catch(IOException ioException){
 				ioException.printStackTrace();
 			}
+			System.out.println("GoodBye");
 	}
 	
 	
