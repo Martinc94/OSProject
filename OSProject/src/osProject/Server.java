@@ -257,8 +257,7 @@ class ClientServiceThread extends Thread {
   void putFile(){
 	  //send file to server
 	  System.out.println("put Command server recieving file");
-  }//end getfile
-  
+  }//end getfile 
   
 }//end ClientServiceThread
 
