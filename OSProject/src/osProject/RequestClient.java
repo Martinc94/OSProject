@@ -66,8 +66,13 @@ public class RequestClient{
 		  			
 					getMethod();
 					
-					System.out.println("Enter any key + return to continue: ");
-					command = stdin.next();
+					System.out.println("Enter any key to continue: ");
+					try {
+						System.in.read();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 	  				break;
 	  				
 	  	        case 2:
@@ -97,8 +102,13 @@ public class RequestClient{
 	  	        	
 	  	        	putMethod();
 	  	        	
-	  	        	System.out.println("Enter any key + return to continue: ");
-					command = stdin.next();
+	  	        	System.out.println("Enter any key to continue: ");
+					try {
+						System.in.read();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 	  				break;
 	  				
 	  	        case 3:
@@ -122,8 +132,13 @@ public class RequestClient{
 						e.printStackTrace();
 					}
 	  	        	
-					System.out.println("Enter any key + return to continue: ");
-					command = stdin.next();
+					System.out.println("Enter any key to continue: ");
+					try {
+						System.in.read();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					
 					break;
 					
@@ -155,8 +170,13 @@ public class RequestClient{
 						e.printStackTrace();
 					}
 					
-					System.out.println("Enter any key + return to continue: ");
-					command = stdin.next();
+					System.out.println("Enter any key to continue: ");
+					try {
+						System.in.read();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					
 					break;
 					
@@ -179,8 +199,13 @@ public class RequestClient{
 						e.printStackTrace();
 					}
 					
-					System.out.println("Enter any key + return to continue: ");
-					command = stdin.next();
+					System.out.println("Enter any key to continue: ");
+					try {
+						System.in.read();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					break;
 					
 	  	       case 99:
@@ -198,7 +223,6 @@ public class RequestClient{
 					break;*/
 
 				default:
-					//System.out.println("Invalid Option");
 					break;
 				}
 				
