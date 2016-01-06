@@ -35,71 +35,135 @@ public class RequestClient{
 		
 		//cannot enter if username and password not verified
 		if(verified){
+			int option=0;
+			String command;
+			String input;
 			//commandLoop
 			do{
-				
-			String command;
-				
-				System.out.println("Please Enter your Command eg get*user (bye to exit): ");
-				command = stdin.next();
-				sendCommand(command);
-				
-				try {
-					String Response = (String)in.readObject();
-					System.out.println(Response);
-				} catch (ClassNotFoundException | IOException e) {
-					e.printStackTrace();
-				}
-				
-				//split command
-				String[] split = command.split("\\*");
-	  	  		
-	  	  	    System.out.println(split[0]);
-	  			System.out.println(split[1]);
-	  			
-	  			String cmd = split[0];
-	  			String cmd2 = split[1];				
+				showMenu();
+				System.out.println("Enter Your Choice: ");
+				option = stdin.nextInt();
 				
 				//switch
-				switch (cmd) {
+				switch (option) {
 					
-				case "get":
-	  				//copy file to the server
+				case 1:
+	  				//copy file to the server					
+					System.out.println("Please Enter your fileDirectory eg C:/myFolder/file1.txt : ");
+					input = stdin.next();
+				
+					command="put*"+input;
+					
+					sendCommand(command);
+					
+					try {
+						String Response = (String)in.readObject();
+						System.out.println(Response);
+					} catch (ClassNotFoundException | IOException e) {
+						e.printStackTrace();
+					}
+					
+		  			
 					getMethod();
+					
+					System.out.println("Enter any key + return to continue: ");
+					command = stdin.next();
 	  				break;
 	  				
-	  	        case "put":
-	  				//move a file to the server
+	  	        case 2:
+	  				//send a file to the server	
+					System.out.println("Please Enter your Command eg put*fileName : ");
+					command = stdin.next();
+					sendCommand(command);
+					
+					try {
+						String Response = (String)in.readObject();
+						System.out.println(Response);
+					} catch (ClassNotFoundException | IOException e) {
+						e.printStackTrace();
+					}
+	  	        	
 	  	        	putMethod();
+	  	        	
+	  	        	System.out.println("Enter any key + return to continue: ");
+					command = stdin.next();
 	  				break;
 	  				
-	  	        case "list":
-					//list all files in directory
+	  	        case 3:
+					//list all files in directory  	  
+					System.out.println("List File : ");
+				
+					System.out.println("Please Enter your Command eg list*directory : ");
+					command = stdin.next();
+					sendCommand(command);
+					
+					try {
+						String Response = (String)in.readObject();
+						System.out.println(Response);
+					} catch (ClassNotFoundException | IOException e) {
+						e.printStackTrace();
+					}
 	  	        	
-					break;
-					
-	  	        case "move":
-					//move file to different directory
-	  	        	
-					break;
-					
-	  	        case "new":
-	  	        	//make new directory
-	  	        	
+					System.out.println("Enter any key + return to continue: ");
+					command = stdin.next();
 					
 					break;
 					
-	  	       case "bye":
-		        	//end program	        	
-		        	verified=false;		
+	  	        case 4:
+					//move file to different directory	  	        					
+					System.out.println("Please Enter your Command eg move*oldDir : ");
+					command = stdin.next();
+					sendCommand(command);
+					
+					try {
+						String Response = (String)in.readObject();
+						System.out.println(Response);
+					} catch (ClassNotFoundException | IOException e) {
+						e.printStackTrace();
+					}
+					
+					System.out.println("Enter any key + return to continue: ");
+					command = stdin.next();
+					
 					break;
+					
+	  	        case 5:
+	  	        	//make new directory      							
+					System.out.println("Please Enter your Command eg new*directory : ");
+					command = stdin.next();
+					sendCommand(command);
+					
+					try {
+						String Response = (String)in.readObject();
+						System.out.println(Response);
+					} catch (ClassNotFoundException | IOException e) {
+						e.printStackTrace();
+					}
+					
+					System.out.println("Enter any key + return to continue: ");
+					command = stdin.next();
+					break;
+					
+	  	       case 99:
+		        	//end program	        			        	
+					command = "bye*bye";
+					sendCommand(command);
+					verified=false;	
+					
+					/*try {
+						String Response = (String)in.readObject();
+						System.out.println(Response);
+					} catch (ClassNotFoundException | IOException e) {
+						e.printStackTrace();
+					}
+					break;*/
 
 				default:
-					
+					//System.out.println("Invalid Option");
 					break;
 				}
 				
-	    	}while(!message.equals("bye"));
+	    	}while(option!=99);
 		}
 		//ends connection
 		closeConnection();
@@ -117,6 +181,15 @@ public class RequestClient{
 			}
 		}
 	
+	void showMenu(){
+		System.out.println("1 - Get File: ");
+		System.out.println("2 - Send File: ");
+		System.out.println("3 - List File: ");
+		System.out.println("4 - Move File: ");
+		System.out.println("5 - New Directory: ");
+		System.out.println("99 - To Exit: ");
+	}
+	
 	void connect()
 	{
 		try {
@@ -131,39 +204,9 @@ public class RequestClient{
 			System.err.println("You are trying to connect to an unknown host!");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("Connected to "+ipaddress+" in port 2004");
-	}
-	
-	void getUser(){
-		String user;
-		String pass;
-		String userpass;
-		
-		System.out.println("Please Enter your Username: ");
-		user = stdin.next();
-		
-		System.out.println("Please Enter your Password: ");
-		pass = stdin.next();
-		
-		//join into one one string seperated by *
-		userpass=user+"*"+pass;
-		
-		try {
-			//String Command = (String)in.readObject();
-			//System.out.println(Command);
-			//out.writeObject(userpass);
-			out.flush();
-			
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//System.out.println(userpass);
 	}
 	
 	void inOutStreams(){
@@ -182,11 +225,13 @@ public class RequestClient{
 		
 	}
 	
+
 	void login(){
 		try {
 			String login = (String)in.readObject();
 			System.out.println("Please Enter Username and password Eg martin*password");
-			login = stdin.next();
+			//login = stdin.next();
+			login="martin*password";
 			sendMessage(login);
 			
 			verified=in.readBoolean();
@@ -205,6 +250,7 @@ public class RequestClient{
 		}
 
 	}
+	
 	
 	void sendCommand(String command){
 		//command = (String)in.readObject();
@@ -251,7 +297,7 @@ public class RequestClient{
 			catch(IOException ioException){
 				ioException.printStackTrace();
 			}
-			System.out.println("GoodBye");
+			System.out.println("GoodBye - disconnected from server");
 	}
 	
 	void getMethod(){
