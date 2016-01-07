@@ -1,30 +1,30 @@
 package osProject;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import static java.nio.file.StandardCopyOption.*;
+import java.io.FileNotFoundException;
+import java.io.BufferedInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 
 public class Server {
 	static Map<String,String> loginMap = new ConcurrentHashMap<String,String>();
@@ -37,7 +37,7 @@ public class Server {
     //read login from file 
     parseLogin();
     
-    //check for root directory
+    //check for root directory on server
     checkRoot();  
     
   //loop that accepts client and starts a new thread
@@ -49,8 +49,7 @@ public class Server {
       ClientServiceThread cliThread = new ClientServiceThread(clientSocket, id++);
       //starts thread
       System.out.println("starting new thread");
-      cliThread.start();
-      
+      cliThread.start();   
     }//end while
     
   }//end main
@@ -60,7 +59,6 @@ public class Server {
  static void checkRoot(){
 	//check for root directory
     if(new File("C:/server/").exists()) {
-    	//System.out.println("Server Root Exists");
     	//server root folder exists 
     }
     else{
@@ -85,7 +83,7 @@ public class Server {
 	    } 
   }//end createDir
 
-  static void parseLogin() throws NumberFormatException, IOException {
+ static void parseLogin() throws NumberFormatException, IOException {
 		String fileName="users.txt";
 		BufferedReader br = null;
 		br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
@@ -94,9 +92,6 @@ public class Server {
 		while((next = br.readLine())!= null){
 			//split the string
 			String[] split = next.split("\\*");
-			
-			//System.out.println(split[0]);
-			//System.out.println(split[1]);
 			
 			String username = split[0];
 			String password = split[1];
@@ -108,8 +103,6 @@ public class Server {
 	}//end parseLogin  
   
 }//end Server
-
-
 
 
 //ClientServiceThread Class/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +134,7 @@ class ClientServiceThread extends Thread {
 		sendMessage("Connection successful");
 		
 	} catch (IOException e1) {
-		System.out.println("error");
+		System.out.println("Error establishing In/Out streams");
 		e1.printStackTrace();
 	}	
     
@@ -185,9 +178,6 @@ class ClientServiceThread extends Thread {
   	  		
   	  		String[] split2 = command.split("\\*");
   	  		
-  	  	    //System.out.println(split2[0]);
-  			//System.out.println(split2[1]);
-  			
   			String cmd = split2[0];
   			String cmd2 = split2[1];
   			
@@ -197,7 +187,6 @@ class ClientServiceThread extends Thread {
   				String getTarget = "C:/server/"+user+"/"+cmd2;
   				getFile(getTarget);
   				
-  				//sendMessage("Server> Get Method");
   				break;
   				
   	        case "put":
@@ -206,15 +195,12 @@ class ClientServiceThread extends Thread {
   	        	
   	        	createFile(putTarget);
   	        	
-  	        	//putFile();
   	        	
-  	        	
-  	        	sendMessage("Server> Put method");
+  	        	//sendMessage("Server> Put method");
   				break;
   				
   	        case "list":
 				//list all files in directory
-  	        	//System.out.println("list Command server showing all files");
   	        	File listDir = new File("C:/server/"+user+"/"+cmd2);
    
   	        	boolean valid=checkDir(listDir);
@@ -235,9 +221,7 @@ class ClientServiceThread extends Thread {
 				
   	        case "move":
 				//move file to different directory  	        
-  	        	//System.out.println("move Command server moving file");
-   	
-  	        	//Path source =source1;
+ 
   	        	Path source = Paths.get("C:/server/"+user+"/"+cmd2);
   	        	File SourceCheck = new File("C:/server/"+user+"/"+cmd2);
   	        	boolean valid1=checkDir(SourceCheck);
@@ -272,8 +256,6 @@ class ClientServiceThread extends Thread {
 				
   	       case "bye":
 	        	//end thread
-
-	        	System.out.println("Closes Thread");
 	        	sendMessage("Server> Goodbye");
 	        	keepRunning=false;		
 				break;
@@ -310,10 +292,7 @@ class ClientServiceThread extends Thread {
   boolean checkLogin(String user,String pass){
 	  boolean verified=false;
 	//compare to username and password
-	 //System.out.println(Server.loginMap.containsKey(user));
-	 //Server.loginMap.get(user).equals(pass);
-	 //System.out.println( Server.loginMap.get(user).equals(pass));
-	 
+	  
 	 //if username exists 
 	 if(Server.loginMap.containsKey(user)){
 		 //if password matches
@@ -327,33 +306,19 @@ class ClientServiceThread extends Thread {
  
   boolean verifyUser(String user,String pass,boolean keepRunning){
 	  try {
-	  
-			
 			keepRunning=checkLogin(user, pass);
-			
+			//tell client if verified
 			out.writeBoolean(keepRunning);
 			out.flush();
-			
-			//if(keepRunning)
-			//System.out.println("User is Verified ");
-			
-			
-	  		
+	
 	  	} catch (IOException e2) {
-	  		System.out.println("error reading login data");
+	  		System.out.println("Error verifying");
 	  		e2.printStackTrace();
 	  	}
 	  return keepRunning;
   }//end verifyUser
   
-  void getFile(String fileName) throws IOException{
-	  //send file from server eg file1.txt
-	  //System.out.println("Get Command server giving file");
-	  //check if already exists
-	  //create new 
-	  //send permission to send file
-	  //recieveFile 
-	  
+  void getFile(String fileName) throws IOException{  
 	  File file = new File(fileName);
 	  boolean send =checkDir(file);
 	  
@@ -373,27 +338,6 @@ class ClientServiceThread extends Thread {
 	  
   }//end getfile
   
-  void putFile(){
-	  //send file to server
-	 // recieveFile(file);
-	  
-	  
-	  
-	 /* //tells client if file is found
-	  out.writeBoolean(send);
-	  out.flush();
-	  
-	  boolean cliReady=in.readBoolean();
-	   
-	  if(send&&cliReady){		  
-		  sendFile(file);
-	  }
-	  else {
-		//unable to send file
-	  }*/
-	  
-  }//end putFile 
-  
   void createDir(File dir){   
 	    // attempt to create the directory here
 	    boolean success = dir.mkdir();
@@ -412,13 +356,11 @@ class ClientServiceThread extends Thread {
 	//check for directory
 	if((dir).exists()) {
 		//folder exists 
-		//System.out.println("Directory Exists");
 		valid=true;
 	}
 	else{
-		//System.out.println("Directory does not exist");
 		//Directory doesnt exist
-		}  
+	}  
 	
 	return valid;
 	}
@@ -443,11 +385,6 @@ class ClientServiceThread extends Thread {
   void recieveFile(File file) throws NumberFormatException, IOException {
 		String text = "";
 		BufferedWriter writer = new BufferedWriter( new FileWriter( file));
-		
-		//boolean ready
-		  //boolean ready=true;
-		  //out.writeBoolean(ready);
-		  //out.flush();
 		  
 		  boolean cliReady=in.readBoolean();
 		   
@@ -477,23 +414,21 @@ class ClientServiceThread extends Thread {
 		
 	}//end recievefile
 
-	void sendFile(File file) throws NumberFormatException, IOException {
+  void sendFile(File file) throws NumberFormatException, IOException {
 		String text = "";
 		
 		BufferedReader br = null;
 		br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 		
 		while((text = br.readLine())!= null){	
-			//sends text to server
+			//sends text to client
 			sendMessage(text);			
 		}//while	
 		
 		sendMessage("EOF");
 
 		br.close();
-		System.out.println("file transter complete");
+		System.out.println("file transter complete");	
 		
-		
-	}//end recievefile
+	}//end sendFile
 }//end ClientServiceThread
-
