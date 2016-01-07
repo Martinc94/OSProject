@@ -26,12 +26,7 @@ public class RequestClient{
 		inOutStreams();
 		
 		//gets login info
-		//getUser();
-		
 		login();
-		
-		//3: Communicating with the server
-		//comm();
 		
 		//cannot enter if username and password not verified
 		if(verified){
@@ -48,77 +43,113 @@ public class RequestClient{
 				switch (option) {
 					
 				case 1:
-	  				//copy file to the server					
-					System.out.println("Please Enter your fileDirectory eg C:/myFolder/file1.txt : ");
-					input = stdin.next();
-				
-					command="put*"+input;
-					
-					sendCommand(command);
-					
-					try {
-						String Response = (String)in.readObject();
-						System.out.println(Response);
-					} catch (ClassNotFoundException | IOException e) {
-						e.printStackTrace();
-					}
-					
-		  			
-					getMethod();
-					
-					System.out.println("Enter any key to continue: ");
-					try {
-						System.in.read();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-	  				break;
-	  				
-	  	        case 2:
-	  				//send a file to the server	
-					//System.out.println("Please Enter your Command eg put*fileName : ");
-					//command = stdin.next();
-	  	        	
-	  	        	System.out.println("Please Enter Directory of file you want eg myFolder/file1.txt : ");
+					//send a file to the server		  	        	
+	  	        	System.out.println("Please Enter Directory of file you want eg file1.txt : ");
 					input = stdin.next();
 				
 					command="get*"+input;
 					sendCommand(command);
 					
-					//add response
-					System.out.println("Please Enter Directory you want to store file to eg C:/Downloads/file1.txt : ");
-					input = stdin.next();
-				
-					command=input;
-					sendCommand(command);
 					
+					
+					
+				
+					//command=input;
+					//sendCommand(command);
+					
+					boolean found=false;
 					try {
+						found = in.readBoolean();
+					} catch (IOException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					if(found){
+						
+						//add response
+						System.out.println("Please Enter Directory you want to store file locally to eg C:/Downloads/file1.txt : ");
+						String localDir = stdin.next();
+					
+						try {
+							createFile(localDir);
+							//recieve file nested in create
+							
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					else {
+						System.out.println("Server Cannot find File");
+					}
+					
+					
+					
+					/*try {
 						String Response = (String)in.readObject();
 						System.out.println(Response);
 					} catch (ClassNotFoundException | IOException e) {
 						e.printStackTrace();
+					}*/
+					
+		  			
+					
+					
+					System.out.println("Enter any key to continue: ");
+					try {
+						System.in.read();
+					} catch (IOException e1) {
+						e1.printStackTrace();
 					}
+	  				break;
+	  				
+	  	        case 2:
+					
+					//copy file from the server					
+					System.out.println("Please Enter your Directory of file on your PC eg C:/myFolder/file1.txt : ");
+					String localName = stdin.next();
+					//String filename=localName;
+					
+					
+					System.out.println("Please Enter what you want to name file on server eg file1.txt : ");
+					input = stdin.next();
+					
+					command="put*"+input;
+					sendCommand(command);
+					
+					String path = localName;
+						
+					File sFile = new File(path);
+					
+					try {
+						sendFile(sFile);
+						
+					} catch (NumberFormatException e2) {					
+						e2.printStackTrace();
+					} catch (IOException e2) {
+						e2.printStackTrace();
+					}
+					
+					
+					/*try {
+						String Response = (String)in.readObject();
+						System.out.println(Response);
+					} catch (ClassNotFoundException | IOException e) {
+						e.printStackTrace();
+					}*/
 	  	        	
-	  	        	putMethod();
+	  	        	//putMethod();
 	  	        	
 	  	        	System.out.println("Enter any key to continue: ");
 					try {
 						System.in.read();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 	  				break;
 	  				
 	  	        case 3:
-					//list all files in directory  	  
-					//System.out.println("List File : ");
-				
-					//System.out.println("Please Enter your Command eg list*directory : ");
-					//command = stdin.next();
-					//sendCommand(command);
-	  	        	
+					//list all files in directory  	  			        	
 	  	        	System.out.println("Please Enter Directory you want to search eg myFolder/file1.txt : ");
 					input = stdin.next();
 				
@@ -135,28 +166,21 @@ public class RequestClient{
 					System.out.println("Enter any key to continue: ");
 					try {
 						System.in.read();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
+					} catch (IOException e1) {					 
 						e1.printStackTrace();
 					}
 					
 					break;
 					
 	  	        case 4:
-					//move file to different directory	  	        					
-					//System.out.println("Please Enter your Command eg move*oldDir : ");
-					//command = stdin.next();
-					//sendCommand(command);
-	  	        	
+					//move file to different directory	  	        					  	        	
 	  	        	System.out.println("Please Enter Directory of file you want to move eg myFolder/file1.txt : ");
 					input = stdin.next();
 				
+					//get target directory
 					command="move*"+input;
 					sendCommand(command);
-					
-					//add response
-					//if file exists
-					
+				
 					System.out.println("Please Enter Directory you want to move file two eg myFolder2 : ");
 					input = stdin.next();
 				
@@ -174,18 +198,13 @@ public class RequestClient{
 					try {
 						System.in.read();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 					
 					break;
 					
 	  	        case 5:
-	  	        	//make new directory      							
-					//System.out.println("Please Enter your Command eg new*directory : ");
-					//command = stdin.next();
-					//sendCommand(command);
-					
+	  	        	//make new directory      												
 					System.out.println("Please Enter Directory you want to create eg myFolder/myNewFolder : ");
 					input = stdin.next();
 				
@@ -203,7 +222,6 @@ public class RequestClient{
 					try {
 						System.in.read();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 					break;
@@ -212,15 +230,8 @@ public class RequestClient{
 		        	//end program	        			        	
 					command = "bye*bye";
 					sendCommand(command);
-					verified=false;	
-					
-					/*try {
-						String Response = (String)in.readObject();
-						System.out.println(Response);
-					} catch (ClassNotFoundException | IOException e) {
-						e.printStackTrace();
-					}
-					break;*/
+					verified=false;						
+					break;
 
 				default:
 					break;
@@ -257,7 +268,6 @@ public class RequestClient{
 	{
 		try {
 		//1. creating a socket to connect to the server
-		//System.out.println("Please Enter your IP Address");
 		System.out.println("Please Enter IP Address of the Server you wish to connect to:");
 		//ipaddress = stdin.next();
 		ipaddress="192.168.1.2";
@@ -288,13 +298,13 @@ public class RequestClient{
 		
 	}
 	
-
 	void login(){
 		try {
 			String login = (String)in.readObject();
 			System.out.println("Please Enter Username and password Eg martin*password");
 			//login = stdin.next();
 			login="martin*password";
+
 			sendMessage(login);
 			
 			verified=in.readBoolean();
@@ -314,7 +324,6 @@ public class RequestClient{
 
 	}
 	
-	
 	void sendCommand(String command){
 		//command = (String)in.readObject();
 		 try {
@@ -324,30 +333,6 @@ public class RequestClient{
 			e.printStackTrace();
 		}
 
-	}
-	
-	void comm(){
-		//3: Communicating with the server
-		do{
-			try
-			{			
-					try {
-						message = (String)in.readObject();
-						System.out.println("Please Enter the Message to send...");
-						message = stdin.next();
-						sendMessage(message);
-						
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-			
-			}
-			catch(ClassNotFoundException classNot)
-			{
-				System.err.println("data received in unknown format");
-			}
-		}while(!message.equals("bye"));
-			
 	}
 	
 	void closeConnection(){
@@ -363,14 +348,104 @@ public class RequestClient{
 			System.out.println("GoodBye - disconnected from server");
 	}
 	
-	void getMethod(){
+	void createFile(String fileName) throws IOException{
 		//create new file 
 		
-		//write to file
+		//System.out.println("Please Enter directory you wish to save file to eg C:/server/myFolder/file1.txt : ");
+		//String path = stdin.next();
 		
-		//until recieve EOF 
+		String path = fileName;
+		
+		//String path = "C:" + File.separator + "hello" + File.separator + "hi.txt";	
+		//String path = "C:" + "/"+ "client" + "/"+ "hi.txt";
+		//String path = "C:" + "/"+ "client" + "/"+ "hi.txt";
+	
+			
+			File f = new File(path);
+			//check if parent directories exist
+			f.getParentFile().mkdirs(); 
+			try {
+				f.createNewFile();
+				recieveFile(f);
+			} catch (IOException e) {
+				//unable to create file
+				e.printStackTrace();
+			}
+			
+		    
+	      
+	      
+	        //write to file
+	      
+		
+
+	      
+	      //System.out.println("File " + FILE_TO_RECEIVED+ " downloaded (" + current + " bytes read)");
+	    
+	    
+	      //if (fos != null) fos.close();
+	      //if (bos != null) bos.close();
+	      
+	    
+		
+		//write to file
+		//PrintWriter printWriter = new PrintWriter(fileName);
+		
 		
 	}
+ 	
+	void recieveFile(File file) throws NumberFormatException, IOException {
+		String text = "";
+		//String txtFile ;
+		BufferedWriter writer = new BufferedWriter( new FileWriter(file));
+		
+        boolean ready=true;
+		
+		out.writeBoolean(ready);
+		
+
+		while(text!= "EOF"){
+			
+			try {
+				//add to file
+				text = (String)in.readObject();
+				writer.append(text);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+				System.out.println("file transter error");			
+			}
+		}//while	
+		
+		writer.close();
+		System.out.println("file transter complete");
+		
+		
+	}//end recievefile
+
+	void sendFile(File file) throws NumberFormatException, IOException {
+		String text = "";
+		
+		BufferedReader br = null;
+		br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		boolean ready=true;
+		//boolean serReady=in.readBoolean();
+			
+		out.writeBoolean(ready);
+			
+		if(ready){
+			while((text = br.readLine())!= null){	
+				//sends text to server
+				sendMessage(text);			
+			}//while	
+			
+			sendMessage("EOF");
+		}
+
+		br.close();
+		System.out.println("file transter complete");
+		
+		
+	}//end recievefile
 	
 	void putMethod(){
 		//get file location
@@ -382,23 +457,7 @@ public class RequestClient{
 		//recieve responce
 	}
 	
-	void listMethod(){
-		
-		//recieve responce from server 
-	}
 	
-	void moveMethod(){
-		
-		//send filenameAndNewDirectory
-		
-		//recieve responce from server 
-	}	
-	
-	void newMethod(){
-		//send new directory to server
-		
-		//recieve responce from server 
-	}
 	
 //MAIN ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	

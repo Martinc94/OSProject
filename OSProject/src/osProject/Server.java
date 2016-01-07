@@ -1,23 +1,30 @@
 package osProject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import static java.nio.file.StandardCopyOption.*;
 
 public class Server {
 	static Map<String,String> loginMap = new ConcurrentHashMap<String,String>();
@@ -77,9 +84,7 @@ public class Server {
 	      System.out.println("failed trying to create the directory");
 	    } 
   }//end createDir
-  
- 
-  
+
   static void parseLogin() throws NumberFormatException, IOException {
 		String fileName="users.txt";
 		BufferedReader br = null;
@@ -126,17 +131,6 @@ class ClientServiceThread extends Thread {
   }
 
   //method to send a message to client
-  void sendMessage(String msg)
-	{
-		try{
-			out.writeObject(msg);
-			out.flush();
-			System.out.println("client> " + msg);
-		}
-		catch(IOException ioException){
-			ioException.printStackTrace();
-		}
-	}
   public void run() {
     try {
 		out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -160,12 +154,8 @@ class ClientServiceThread extends Thread {
 		System.out.println("Cannot read login Data");
 		e.printStackTrace();
 	}
-	//System.out.println(logindata);
 	String[] split = logindata.split("\\*");
-	
-	//System.out.println(split[0]);
-	//System.out.println(split[1]);
-	
+
 	String user = split[0];
 	String pass = split[1];
   	
@@ -187,38 +177,44 @@ class ClientServiceThread extends Thread {
   	
   	
   	String command="";
-  	System.out.println("Waiting for command "+keepRunning);
+
   	while(keepRunning){
   		
   		try {
-  			//System.out.println("Waiting for command "+keepRunning);
   	  		command= (String)in.readObject();
   	  		
   	  		String[] split2 = command.split("\\*");
   	  		
-  	  	    System.out.println(split2[0]);
-  			System.out.println(split2[1]);
+  	  	    //System.out.println(split2[0]);
+  			//System.out.println(split2[1]);
   			
   			String cmd = split2[0];
   			String cmd2 = split2[1];
   			
   			switch (cmd) {
   			case "get":
-  				//copy file to the server
-  				sendMessage("Server> Get Method");
-  				getFile(cmd2);
+  				//copy file from the server 	
+  				String getTarget = "C:/server/"+user+"/"+cmd2;
+  				getFile(getTarget);
+  				
+  				//sendMessage("Server> Get Method");
   				break;
   				
   	        case "put":
-  				//move a file to the server
+  				//move a file to the server      
+  	        	String putTarget = "C:/server/"+user+"/"+cmd2;
+  	        	
+  	        	createFile(putTarget);
+  	        	
+  	        	//putFile();
+  	        	
+  	        	
   	        	sendMessage("Server> Put method");
-  	        	putFile();
   				break;
   				
   	        case "list":
 				//list all files in directory
-  	        	sendMessage("Server> List Command server showing all files");
-  	        	System.out.println("list Command server showing all files");
+  	        	//System.out.println("list Command server showing all files");
   	        	File listDir = new File("C:/server/"+user+"/"+cmd2);
    
   	        	boolean valid=checkDir(listDir);
@@ -227,39 +223,41 @@ class ClientServiceThread extends Thread {
   	        		//directory valid - listfiles
   	        		String[] list;
   	        		list=listDir.list();
- 	        		
-  	        		System.out.println(Arrays.toString(list));
-  	        		
+	        
   	        		//send list back to client
-  	        		//sendMessage(Arrays.toString(list));
+  	        		sendMessage("Server> "+Arrays.toString(list));
   	        	}
   	        	else{
   	        		//directory invalid 
-  	        		
+  	        		sendMessage("Server> Invalid Directory");
   	        	}
 				break;
 				
   	        case "move":
-				//move file to different directory
-  	        	sendMessage("Server> move Command server moving file");
-  	        	System.out.println("move Command server moving file");
+				//move file to different directory  	        
+  	        	//System.out.println("move Command server moving file");
+   	
+  	        	//Path source =source1;
+  	        	Path source = Paths.get("C:/server/"+user+"/"+cmd2);
+  	        	File SourceCheck = new File("C:/server/"+user+"/"+cmd2);
+  	        	boolean valid1=checkDir(SourceCheck);
   	        	
-  	        	File oldDir = new File("C:/server/"+user+"/"+cmd2);
+  	        	//get file move target
+  	        	command= (String)in.readObject();       	
   	        	
-  	        	//ask client for new dir(movingDir)
-  	        	File moveDir = new File("C:/server/"+user+"/"+cmd2);
-  	        	
-  	        	boolean valid1=checkDir(oldDir);
-  	        	
-  	        	boolean valid2=checkDir(moveDir);
+  	        	Path target = Paths.get("C:/server/"+user+"/"+command+"/"+cmd2);
+  	        	File targetCheck = new File("C:/server/"+user+"/"+command);      
+  	        	boolean valid2=checkDir(targetCheck);
   	        	
   	        	if(valid1&&valid2){
   	        		//both directories valid - move file
+  	        		Files.move(source, target, REPLACE_EXISTING);
+  	        		sendMessage("Server> File was moved sucessfully"); 	        		
   	        	}
   	        	else{
   	        		//one or more directories/filenames invalid
-  	        	}
-  	        	
+  	        		sendMessage("Server> File move was unsucessful");
+  	        	} 
   	        	
 				break;
 				
@@ -285,8 +283,6 @@ class ClientServiceThread extends Thread {
   				sendMessage("Server> Unknown Command");
   				break;
   			}//end switch
-  			
-  			//System.out.println("verification is "+keepRunning);
   	  		
   	  	} catch (ClassNotFoundException | IOException e2) {
   	  		System.out.println("error reading login data");
@@ -296,8 +292,20 @@ class ClientServiceThread extends Thread {
   	}//end while
 
   	System.out.println("Ending Client : ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
-    System.out.println("Closing Thread");
+    System.out.println("Closing Thread "+clientID);
   }//end run
+  
+  void sendMessage(String msg)
+ 	{
+ 		try{
+ 			out.writeObject(msg);
+ 			out.flush();
+ 			System.out.println("client> " + msg);
+ 		}
+ 		catch(IOException ioException){
+ 			ioException.printStackTrace();
+ 		}
+ 	}
   
   boolean checkLogin(String user,String pass){
 	  boolean verified=false;
@@ -326,8 +334,8 @@ class ClientServiceThread extends Thread {
 			out.writeBoolean(keepRunning);
 			out.flush();
 			
-			if(keepRunning)
-			System.out.println("User is Verified ");
+			//if(keepRunning)
+			//System.out.println("User is Verified ");
 			
 			
 	  		
@@ -338,20 +346,53 @@ class ClientServiceThread extends Thread {
 	  return keepRunning;
   }//end verifyUser
   
-  void getFile(String cmd2){
+  void getFile(String fileName) throws IOException{
 	  //send file from server eg file1.txt
 	  //System.out.println("Get Command server giving file");
 	  //check if already exists
 	  //create new 
 	  //send permission to send file
-	  //recieveFile
+	  //recieveFile 
+	  
+	  File file = new File(fileName);
+	  boolean send =checkDir(file);
+	  
+	  //tells client if file is found
+	  out.writeBoolean(send);
+	  out.flush();
+	  
+	  boolean cliReady=in.readBoolean();
+	   
+	  if(send&&cliReady){		  
+		  sendFile(file);
+	  }
+	  else {
+		//unable to send file
+	  }
+	    
 	  
   }//end getfile
   
   void putFile(){
 	  //send file to server
-	  System.out.println("put Command server recieving file");
-  }//end getfile 
+	 // recieveFile(file);
+	  
+	  
+	  
+	 /* //tells client if file is found
+	  out.writeBoolean(send);
+	  out.flush();
+	  
+	  boolean cliReady=in.readBoolean();
+	   
+	  if(send&&cliReady){		  
+		  sendFile(file);
+	  }
+	  else {
+		//unable to send file
+	  }*/
+	  
+  }//end putFile 
   
   void createDir(File dir){   
 	    // attempt to create the directory here
@@ -371,16 +412,88 @@ class ClientServiceThread extends Thread {
 	//check for directory
 	if((dir).exists()) {
 		//folder exists 
-		System.out.println("Directory Exists");
+		//System.out.println("Directory Exists");
 		valid=true;
 	}
 	else{
-		System.out.println("C:/Directory - does not exist");
+		//System.out.println("Directory does not exist");
 		//Directory doesnt exist
 		}  
 	
 	return valid;
 	}
 
+  void createFile(String fileName) throws IOException{
+		//create new file 
+		String path = fileName;
+
+		File f = new File(path);
+		//check if parent directories exist and create
+		f.getParentFile().mkdirs(); 
+		try {
+			f.createNewFile();
+			recieveFile(f);
+		} catch (IOException e) {
+			//unable to create file
+			e.printStackTrace();
+		}
+		
+	}//end create file
+	
+  void recieveFile(File file) throws NumberFormatException, IOException {
+		String text = "";
+		BufferedWriter writer = new BufferedWriter( new FileWriter( file));
+		
+		//boolean ready
+		  //boolean ready=true;
+		  //out.writeBoolean(ready);
+		  //out.flush();
+		  
+		  boolean cliReady=in.readBoolean();
+		   
+		  if(cliReady){		  
+			while(text!= "EOF"){
+				
+				try {
+					//add to file
+					text = (String)in.readObject();
+					writer.append(text);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+					System.out.println("file transter error");			
+				}
+				
+			}//end while
+		  
+		}//end if	
+		else {
+			//unable to recieve file
+		}  
+		
+		
+		writer.close();
+		System.out.println("file transter complete");
+		
+		
+	}//end recievefile
+
+	void sendFile(File file) throws NumberFormatException, IOException {
+		String text = "";
+		
+		BufferedReader br = null;
+		br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		
+		while((text = br.readLine())!= null){	
+			//sends text to server
+			sendMessage(text);			
+		}//while	
+		
+		sendMessage("EOF");
+
+		br.close();
+		System.out.println("file transter complete");
+		
+		
+	}//end recievefile
 }//end ClientServiceThread
 
