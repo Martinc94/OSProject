@@ -33,13 +33,12 @@ public class RequestClient{
 			int option=0;
 			String command;
 			String input;
-			//commandLoop
+			//commandLoop until 99 entered as option
 			do{
 				showMenu();
 				System.out.println("Enter Your Choice: ");
 				option = stdin.nextInt();
-				
-				//switch
+				//switch on option
 				switch (option) {
 					
 				case 1:
@@ -50,50 +49,28 @@ public class RequestClient{
 					command="get*"+input;
 					sendCommand(command);
 					
-					
-					
-					
-				
-					//command=input;
-					//sendCommand(command);
-					
 					boolean found=false;
 					try {
 						found = in.readBoolean();
 					} catch (IOException e2) {
-						// TODO Auto-generated catch block
+						System.out.println("cannot read found boolean from server");
 						e2.printStackTrace();
 					}
-					if(found){
-						
+					if(found){	
 						//add response
 						System.out.println("Please Enter Directory you want to store file locally to eg C:/Downloads/file1.txt : ");
 						String localDir = stdin.next();
 					
 						try {
 							createFile(localDir);
-							//recieve file nested in create
-							
+							//recieve file method nested in createFile method					
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
 					else {
 						System.out.println("Server Cannot find File");
 					}
-					
-					
-					
-					/*try {
-						String Response = (String)in.readObject();
-						System.out.println(Response);
-					} catch (ClassNotFoundException | IOException e) {
-						e.printStackTrace();
-					}*/
-					
-		  			
-					
 					
 					System.out.println("Enter any key to continue: ");
 					try {
@@ -103,14 +80,11 @@ public class RequestClient{
 					}
 	  				break;
 	  				
-	  	        case 2:
-					
+	  	        case 2:					
 					//copy file from the server					
 					System.out.println("Please Enter your Directory of file on your PC eg C:/myFolder/file1.txt : ");
 					String localName = stdin.next();
-					//String filename=localName;
-					
-					
+				
 					System.out.println("Please Enter what you want to name file on server eg file1.txt : ");
 					input = stdin.next();
 					
@@ -129,16 +103,6 @@ public class RequestClient{
 					} catch (IOException e2) {
 						e2.printStackTrace();
 					}
-					
-					
-					/*try {
-						String Response = (String)in.readObject();
-						System.out.println(Response);
-					} catch (ClassNotFoundException | IOException e) {
-						e.printStackTrace();
-					}*/
-	  	        	
-	  	        	//putMethod();
 	  	        	
 	  	        	System.out.println("Enter any key to continue: ");
 					try {
@@ -168,8 +132,7 @@ public class RequestClient{
 						System.in.read();
 					} catch (IOException e1) {					 
 						e1.printStackTrace();
-					}
-					
+					}				
 					break;
 					
 	  	        case 4:
@@ -248,7 +211,6 @@ public class RequestClient{
 		try{
 			out.writeObject(msg);
 			out.flush();
-			//System.out.println("client>" + msg);
 			}
 			catch(IOException ioException){
 				ioException.printStackTrace();
@@ -266,19 +228,26 @@ public class RequestClient{
 	
 	void connect()
 	{
-		try {
-		//1. creating a socket to connect to the server
-		System.out.println("Please Enter IP Address of the Server you wish to connect to:");
-		//ipaddress = stdin.next();
-		ipaddress="192.168.1.2";
-		requestSocket = new Socket(ipaddress, 2004);
+		Boolean connect=false;
+		do{
+			try {
+			//1. creating a socket to connect to the server
+			System.out.println("Please Enter IP Address of the Server you wish to connect to:");
+			ipaddress = stdin.next();
+			requestSocket = new Socket(ipaddress, 2004);
+			connect= requestSocket.isConnected();
+			
+			} catch (UnknownHostException e) {
+				System.err.println("You are trying to connect to an unknown host!");
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			if(connect==false){
+				System.out.println("Try connecting to the server again");
+			}
+		}while(connect!=true);
 		
-		} catch (UnknownHostException e) {
-			System.err.println("You are trying to connect to an unknown host!");
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		System.out.println("Connected to "+ipaddress+" in port 2004");
 	}
 	
@@ -293,17 +262,13 @@ public class RequestClient{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
-		
-	}
+	}//end inOutStreams
 	
 	void login(){
 		try {
 			String login = (String)in.readObject();
 			System.out.println("Please Enter Username and password Eg martin*password");
-			//login = stdin.next();
-			login="martin*password";
+			login = stdin.next();
 
 			sendMessage(login);
 			
@@ -325,11 +290,10 @@ public class RequestClient{
 	}
 	
 	void sendCommand(String command){
-		//command = (String)in.readObject();
 		 try {
 			out.writeObject(command);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
@@ -337,62 +301,32 @@ public class RequestClient{
 	
 	void closeConnection(){
 		//4: Closing connection
-			try{
-				in.close();
-				out.close();
-				requestSocket.close();
-			}
-			catch(IOException ioException){
-				ioException.printStackTrace();
-			}
-			System.out.println("GoodBye - disconnected from server");
+		try{
+			in.close();
+			out.close();
+			requestSocket.close();
+		}
+		catch(IOException ioException){
+			ioException.printStackTrace();
+		}
+		System.out.println("GoodBye - disconnected from server");
 	}
 	
 	void createFile(String fileName) throws IOException{
 		//create new file 
-		
-		//System.out.println("Please Enter directory you wish to save file to eg C:/server/myFolder/file1.txt : ");
-		//String path = stdin.next();
-		
 		String path = fileName;
-		
-		//String path = "C:" + File.separator + "hello" + File.separator + "hi.txt";	
-		//String path = "C:" + "/"+ "client" + "/"+ "hi.txt";
-		//String path = "C:" + "/"+ "client" + "/"+ "hi.txt";
-	
-			
-			File f = new File(path);
-			//check if parent directories exist
-			f.getParentFile().mkdirs(); 
-			try {
-				f.createNewFile();
-				recieveFile(f);
-			} catch (IOException e) {
-				//unable to create file
-				e.printStackTrace();
-			}
-			
-		    
-	      
-	      
-	        //write to file
-	      
-		
 
-	      
-	      //System.out.println("File " + FILE_TO_RECEIVED+ " downloaded (" + current + " bytes read)");
-	    
-	    
-	      //if (fos != null) fos.close();
-	      //if (bos != null) bos.close();
-	      
-	    
-		
-		//write to file
-		//PrintWriter printWriter = new PrintWriter(fileName);
-		
-		
-	}
+		File f = new File(path);
+		//check if parent directories exist
+		f.getParentFile().mkdirs(); 
+		try {
+			f.createNewFile();
+			recieveFile(f);
+		} catch (IOException e) {
+			//unable to create file
+			e.printStackTrace();
+		}
+	}//end createFile
  	
 	void recieveFile(File file) throws NumberFormatException, IOException {
 		String text = "";
@@ -403,7 +337,6 @@ public class RequestClient{
 		
 		out.writeBoolean(ready);
 		
-
 		while(text!= "EOF"){
 			
 			try {
@@ -428,7 +361,6 @@ public class RequestClient{
 		BufferedReader br = null;
 		br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 		boolean ready=true;
-		//boolean serReady=in.readBoolean();
 			
 		out.writeBoolean(ready);
 			
@@ -444,36 +376,16 @@ public class RequestClient{
 		br.close();
 		System.out.println("file transter complete");
 		
-		
 	}//end recievefile
-	
-	void putMethod(){
-		//get file location
-		
-		//read from new file 
-		
-		//send to server
-		
-		//recieve responce
-	}
-	
 	
 	
 //MAIN ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	
-		public static void main(String args[])
-		{
-			//creates new request socket
-			RequestClient client = new RequestClient();
-			//client.getUser();
-			client.run();
-			
-			
-		}
-	}
 
-
-	
-
-
+	public static void main(String args[])
+	{
+		//creates new request socket
+		RequestClient client = new RequestClient();
+		//client.getUser();
+		client.run();
+	}//end main
+}//end requestClient
